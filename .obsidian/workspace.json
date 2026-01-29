@@ -164,8 +164,19 @@
               "icon": "lucide-list",
               "title": "数据增广 的大纲"
             }
+          },
+          {
+            "id": "03c4ff01012e4574",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {},
+              "icon": "git-pull-request",
+              "title": "Source Control"
+            }
           }
-        ]
+        ],
+        "currentTab": 5
       }
     ],
     "direction": "horizontal",
