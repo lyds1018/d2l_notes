@@ -38,9 +38,6 @@ model = models.resnet18(pretrained=True)   # True = 加载 ImageNet 预训练权
 num_classes = 10   # 例如 CIFAR10
 model.fc = nn.Linear(model.fc.in_features, num_classes)
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = model.to(device)
-
 # 定义损失 + 优化器
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
