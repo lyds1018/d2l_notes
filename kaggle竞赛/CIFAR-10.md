@@ -9,7 +9,6 @@ import torch
 from PIL import Image
 from torch.utils.data import Dataset
 
-basedir = os.path.dirname(os.path.abspath(__file__))
 
 class ImageDataset(Dataset):
     def __init__(self, csv_file, img_path, transform=None, index=True):
@@ -79,20 +78,31 @@ test_transform = T.Compose([
 
 ```python
 dataset = ImageDataset(
-    csv_file=os.path.join(basedir, "data/train.csv"),
-    img_path=os.path.join(basedir, "data/train"),
+    csv_file=os.path.join(basedir, "data", "train.csv"),
+    img_path=os.path.join(basedir, "data", "train"),
 )
 
-test_ratio = 0.2
-test_size = int(len(dataset) * test_ratio)
-train_size = len(dataset) - test_size
+train_size = int(0.8 * len(dataset))
+test_size = len(dataset) - train_size
+
 generator = torch.Generator().manual_seed(42)
-train_dataset, test_dataset = random_split(
-    dataset, [train_size, test_size], generator=generator
+train_idx, test_idx = random_split(
+    range(len(dataset)), [train_size, test_size], generator=generator
 )
 
-train_dataset.dataset.transform = train_transform
-test_dataset.dataset.transform = test_transform
+train_dataset = ImageDataset(
+    csv_file=os.path.join(basedir, "data", "train.csv"),
+    img_path=os.path.join(basedir, "data", "train"),
+    transform=train_transform,
+)
+test_dataset = ImageDataset(
+    csv_file=os.path.join(basedir, "data", "train.csv"),
+    img_path=os.path.join(basedir, "data", "train"),
+    transform=test_transform,
+)
+
+train_dataset = torch.utils.data.Subset(train_dataset, train_idx)
+test_dataset = torch.utils.data.Subset(test_dataset, test_idx)
 ```
 
 ---
@@ -147,6 +157,8 @@ class ResNet18(nn.Module):
         
         self.layer4 = nn.Sequential(ResBlock(256, 512, 2), ResBlock(512, 512))
         
+        self.dropout = nn.Dropout(0.5)
+        
         self.fc = nn.Linear(512, 10)
     
     def forward(self, x):
@@ -158,6 +170,7 @@ class ResNet18(nn.Module):
         
         x = F.adaptive_avg_pool2d(x, 1)
         x = x.view(x.size(0), -1)
+        x = self.dropout(x)
         
         return self.fc(x)
 ```
